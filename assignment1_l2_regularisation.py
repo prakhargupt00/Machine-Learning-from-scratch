@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-Created on Fri Oct 18 21:35:00 2019
+Created on Sat Oct 19 22:31:44 2019
+
+@author: acer
 """
 
-#GRADIENT DESCENT ALGORITHM FOR LINEAR REGRESSION 
+#GRADIENT DESCENT ALGORITHM WITH REGULARISATION
 import numpy as np 
 import pandas as pd  
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pyt
 import math
 
 
@@ -17,11 +20,10 @@ df = pd.read_csv(filename)
 data = df.values
 np.random.shuffle(data)
 
-# data normalisation
+#data normalisation
 data[0:,1]= (data[0:,1] -np.mean(data[0:,1], dtype=np.float64)) / np.std(data[0:,1], dtype=np.float64)
 data[0:,2]= (data[0:,2] -np.mean(data[0:,2], dtype=np.float64)) / np.std(data[0:,2], dtype=np.float64)
 data[0:,3]= (data[0:,3] -np.mean(data[0:,3], dtype=np.float64)) / np.std(data[0:,3], dtype=np.float64)
-
 
 train_data = data[0:304411,1:4]  #ignoring first column
 test_data  = data[304411: ,1:4]  # 0 to 304411 is 70% of data
@@ -32,17 +34,18 @@ w= np.zeros(3)
 #learning rate
 alpha = 1e-6
 
+#Lamda
+lamda = 1
+
 # no of iteration 
-k = 20
+k = 15
 
-#cost
+#cost or error initially
 J=0 
-
-loss = []    
-epoch = []
-#calculating the error function using gradient descent 
+    
+#calculating the error function using gradient descent with l2 norm regularisation 
 for i in range(k):   #num_of_iterations
-    h=0
+    h=0     #cost for each iteration
     c0=0
     c1=0
     c2=0
@@ -53,14 +56,15 @@ for i in range(k):   #num_of_iterations
         c0+=e
         c1+=e*train_data[j][0]
         c2+=e*train_data[j][1]
+    #adding regularisation to the cost
+    for j in range(3):
+        h+=lamda*w[j]*w[j]
     h=0.5*h
-    loss.append(h)
-    epoch.append(i)
-    J=h
+    J=h    #updating the final cost after each iteration
     #updating wieghts
-    w[0]=w[0]-alpha*(c0)
-    w[1]=w[1]-alpha*(c1)
-    w[2]=w[2]-alpha*(c2)
+    w[0]=w[0]-alpha*(c0) - alpha*lamda*w[0]
+    w[1]=w[1]-alpha*(c1) - alpha*lamda*w[1]
+    w[2]=w[2]-alpha*(c2) - alpha*lamda*w[2]
     print(h)
 
 #calculating mean for genrating r-squared 
@@ -78,14 +82,9 @@ for i in range(len(test_data)):
     q = test_data[i][2]  - mean
     res_sum+=p**2
     tot_sum+=q**2
-    
-print("r2 error is : " , 1-res_sum/tot_sum)
-print("\n")
 
-plt.plot(epoch,loss)
-plt.xlabel('epoch') 
-plt.ylabel('loss')
-plt.show()
+print("\n")    
+print("r2 error is : " , 1-res_sum/tot_sum)
 
 
 #calculating RMSE value 
