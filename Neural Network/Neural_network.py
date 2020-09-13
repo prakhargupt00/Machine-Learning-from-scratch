@@ -123,7 +123,7 @@ if __name__ == "__main__":
     y_test =y_test.reshape(-1, 1)
     correct = predictions == y_test[:,0] 
     accuracy = (np.sum(correct) / len(test_data))*100
-    print ('Logistic regression Accuracy %: ', accuracy)
+    print ('Neural Network model Accuracy %: ', accuracy)
     
     
     
